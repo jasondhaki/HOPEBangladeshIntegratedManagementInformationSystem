@@ -23,7 +23,21 @@ Source of truth for build progress. Invoke `/next-task` to work the first unchec
     latest) to match SPEC §4.1's version targets and `eslint-config-next`'s peer range.
     `pnpm typecheck && pnpm lint && pnpm build` all green; root page verified rendering via
     `pnpm dev`. Test harness (`pnpm test` / `test:rls`) intentionally not wired yet — that's P0-04.
-- [ ] **P0-02** Tailwind + shadcn/ui + base theme tokens · SPEC §4
+- [x] **P0-02** Tailwind + shadcn/ui + base theme tokens · SPEC §4
+  - Built: Tailwind v4 (`postcss.config.mjs`, `@import "tailwindcss"` in `app/globals.css`);
+    shadcn/ui initialized with `--base radix` per SPEC §4.1 (`components.json`, `lib/utils.ts`
+    `cn()` helper, `components/ui/button.tsx`). Base theme tokens (light + dark CSS variables,
+    neutral palette, `--radius`) live in `app/globals.css`; no brand color/dark-mode toggle
+    requirement exists in SPEC or Appendix H, so shadcn's neutral defaults are used, light mode
+    as the default. Fixed the CLI-generated circular `--font-sans` var with a literal system-font
+    stack (no custom font in SPEC §4.1). Bumped the `Button` component's default/lg/icon sizes to
+    44px/48px to satisfy `.claude/rules/ui.md`'s touch-target rule — the generated preset
+    defaulted to 32px. Also fixed a pre-existing gap from P0-01: `eslint.config.mjs` didn't
+    ignore `.next/**` or the generated `next-env.d.ts`, so `pnpm lint` failed against build
+    output; added an `ignores` entry. `app/page.tsx` updated to exercise Tailwind + the Button
+    component. `pnpm typecheck && pnpm lint && pnpm build` all green; verified in-browser at
+    desktop and 375px via Chrome DevTools MCP — no overflow, button meets the 44px target.
+    `pnpm test`/`pnpm test:rls` still unwired (P0-04), same as P0-01.
 - [ ] **P0-03** Drizzle + local Supabase stack + `db:generate` / `db:migrate` / `db:seed` scripts · SPEC §4.4
 - [ ] **P0-04** Vitest + Playwright + pgTAP harness wired to pnpm scripts · SPEC §57
 - [ ] **P0-05** GitHub Actions CI: typecheck → lint → unit → migration dry-run → RLS → build · SPEC §7
