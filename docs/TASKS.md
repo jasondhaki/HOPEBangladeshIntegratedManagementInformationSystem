@@ -38,7 +38,22 @@ Source of truth for build progress. Invoke `/next-task` to work the first unchec
     component. `pnpm typecheck && pnpm lint && pnpm build` all green; verified in-browser at
     desktop and 375px via Chrome DevTools MCP — no overflow, button meets the 44px target.
     `pnpm test`/`pnpm test:rls` still unwired (P0-04), same as P0-01.
-- [ ] **P0-03** Drizzle + local Supabase stack + `db:generate` / `db:migrate` / `db:seed` scripts · SPEC §4.4
+- [x] **P0-03** Drizzle + local Supabase stack + `db:generate` / `db:migrate` / `db:seed` scripts · SPEC §4.4
+  - Built: `drizzle.config.ts` (postgresql dialect, `postgres` driver via `drizzle-orm/postgres-js`);
+    `db/schema/index.ts` barrel (empty — Phase 1 tasks add tables); `db/migrations/` (empty
+    journal, committed); `db/seeds/index.ts` + `db/seed.ts` runner (empty `seeds[]`, future master
+    data tasks push into it); `lib/db/client.ts` Drizzle singleton with a dev hot-reload guard.
+    `supabase/config.toml` from `supabase init` (default local ports: API 54321, DB 54322, Studio
+    54323). `package.json` scripts: `db:generate` → `drizzle-kit generate`, `db:migrate` →
+    `drizzle-kit migrate`, `db:seed` → `tsx db/seed.ts`; `pnpm supabase start/stop` work via pnpm's
+    bin-resolution once `supabase` is a devDependency — no extra script entries needed.
+    `.env.example` documents `DATABASE_URL` / Supabase URL+keys; real values go in gitignored
+    `.env.local`. Verified end-to-end against a real local Postgres: `pnpm supabase start` → 0
+    tables generated → `pnpm db:migrate` created `drizzle.__drizzle_migrations` in the running
+    container (confirmed via `psql`) → `pnpm db:seed` ran 0 seeds → `pnpm supabase stop`.
+    `pnpm typecheck && pnpm lint` green. Docker Desktop had to be installed for this session (was
+    missing) and, after a disk-full crash on `C:` mid-pull, fully reinstalled with the app and its
+    WSL data disk both on `D:` (`D:\Docker`, `D:\DockerWSL`) instead of `C:`.
 - [ ] **P0-04** Vitest + Playwright + pgTAP harness wired to pnpm scripts · SPEC §57
 - [ ] **P0-05** GitHub Actions CI: typecheck → lint → unit → migration dry-run → RLS → build · SPEC §7
 - [ ] **P0-06** App shell, navigation, shared `DataTable`, form primitives · SPEC §5.5
