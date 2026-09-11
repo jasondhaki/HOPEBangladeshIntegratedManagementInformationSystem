@@ -16,7 +16,13 @@ Source of truth for build progress. Invoke `/next-task` to work the first unchec
 
 ## Phase 0 — Foundation setup
 
-- [ ] **P0-01** Scaffold Next.js App Router + TypeScript strict + pnpm · SPEC §4
+- [x] **P0-01** Scaffold Next.js App Router + TypeScript strict + pnpm · SPEC §4
+  - Built: `package.json` (pnpm scripts `dev`/`build`/`start`/`lint`/`typecheck`), `tsconfig.json`
+    (strict), `next.config.ts`, `eslint.config.mjs`, `app/layout.tsx`, `app/page.tsx`,
+    `app/globals.css`. Next.js pinned to 15.x and ESLint to 9.x (not the just-released 16.x/10.x
+    latest) to match SPEC §4.1's version targets and `eslint-config-next`'s peer range.
+    `pnpm typecheck && pnpm lint && pnpm build` all green; root page verified rendering via
+    `pnpm dev`. Test harness (`pnpm test` / `test:rls`) intentionally not wired yet — that's P0-04.
 - [ ] **P0-02** Tailwind + shadcn/ui + base theme tokens · SPEC §4
 - [ ] **P0-03** Drizzle + local Supabase stack + `db:generate` / `db:migrate` / `db:seed` scripts · SPEC §4.4
 - [ ] **P0-04** Vitest + Playwright + pgTAP harness wired to pnpm scripts · SPEC §57
