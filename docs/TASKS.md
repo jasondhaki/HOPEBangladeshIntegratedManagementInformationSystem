@@ -83,7 +83,44 @@ Source of truth for build progress. Invoke `/next-task` to work the first unchec
     stop` → `pnpm build` all green; workflow YAML parsed with `js-yaml` to confirm it's
     well-formed and steps are in the declared order. Not yet verified against an actual GitHub
     Actions run (would require pushing).
-- [ ] **P0-06** App shell, navigation, shared `DataTable`, form primitives · SPEC §5.5
+- [x] **P0-06** App shell, navigation, shared `DataTable`, form primitives · SPEC §5.5
+  - Built: `app/(app)/layout.tsx` — shadcn's `sidebar` block (`SidebarProvider` /
+    `AppSidebar` / `SidebarInset`), reusing the `--sidebar-*` tokens already in
+    `app/globals.css` from P0-02; persistent on desktop, an off-canvas `Sheet`
+    drawer below `md`. `components/layout/nav-items.ts` lists the 17 top-level
+    `app/(app)/<module>` entries from SPEC §4.7's tree (deeper subtrees are
+    added by the phase task that builds them); `app-sidebar.tsx` /
+    `app-header.tsx` render nav + a breadcrumb + `SidebarTrigger`. One stub
+    `page.tsx` per module; `dashboard` and `settings` carry the real demos
+    below. Shared `DataTable` lives at `components/tables/data-table.tsx` over
+    `@tanstack/react-table` **v9** (a from-scratch atoms/features API, not
+    v8's `useReactTable` — verified against the installed package's own
+    `.d.ts` files rather than assumed): sort, a global-filter search box,
+    pagination, and a genuine CSV export (`lib/export/csv.ts`) of the current
+    filtered rows; collapses from a `<table>` to stacked cards below 640px
+    per §5.5, demoed on `/dashboard` with static sample rows (real data is
+    P1-11). Form primitives are shadcn's `form.tsx` (hand-written — the
+    `radix-nova` style's registry has no file content for it yet) plus
+    `input`/`select`/`checkbox`/`textarea`/`label`, wired to React Hook Form +
+    Zod and demoed on `/settings` (`settings-demo-form.tsx`) with a throwaway
+    schema, since no real entity/table exists yet to build a form against.
+    Added `zod`, `react-hook-form`, `@tanstack/react-table`,
+    `@hookform/resolvers` (the last isn't named verbatim in CLAUDE.md's stack
+    list — it's the standard RHF↔Zod glue shadcn's own form pattern needs).
+    Patched the shadcn-generated `input`/`select`/`checkbox` up to the 44px
+    touch-target rule (`.claude/rules/ui.md`) — same gap P0-02 already fixed
+    once for `button.tsx`. `vitest.config.mts` gained an `oxc.jsx` option:
+    Vitest's oxc transform otherwise reads `tsconfig.json`'s `jsx: "preserve"`
+    (needed for Next's own compiler) and passes `.tsx` files through
+    untransformed. Root `app/page.tsx` and its existing e2e smoke test are
+    untouched — the shell lives under `/dashboard` etc. until P1-02 wires
+    real auth/redirects. Verified: `pnpm typecheck && pnpm lint && pnpm test
+    && pnpm test:rls && pnpm build` all green; new `tests/e2e/app-shell.spec.ts`
+    passes on both Playwright projects (desktop persistent sidebar + nav;
+    mobile drawer open/close via a ≥44px trigger; table→card collapse;
+    sort/filter/paginate; single-column form + validation error) — stable
+    across repeated runs. Strings stay plain English literals for now
+    (`next-intl` catalogues are the very next task, P0-07).
 - [ ] **P0-07** `lib/format` (date, currency, number) + `next-intl` scaffold with `en`/`bn` · SPEC §47
 - [ ] **P0-08** `lib/ids` sequence generator with `SELECT … FOR UPDATE` · SPEC §10.1
 - [ ] **P0-09** `audit_logs` table, generic audit trigger, `withAudit()` wrapper · SPEC §46
