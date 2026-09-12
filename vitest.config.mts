@@ -14,4 +14,11 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "."),
     },
   },
+  // tsconfig.json sets jsx: "preserve" for Next's own compiler; Vite's oxc
+  // transform (used for every file Vitest loads, including .tsx modules
+  // pulled in transitively by a .ts test) reads that same tsconfig and
+  // otherwise passes JSX through untransformed instead of compiling it.
+  oxc: {
+    jsx: { runtime: "automatic" },
+  },
 });
