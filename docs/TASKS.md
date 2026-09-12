@@ -68,7 +68,21 @@ Source of truth for build progress. Invoke `/next-task` to work the first unchec
     `next dev` server; `pnpm supabase start` → `pnpm test:rls` → `Result: PASS` (1/1) → `pnpm
     supabase stop`. Real RLS/permission tests and unit tests for business rules land per table
     starting P1-04/P1-05.
-- [ ] **P0-05** GitHub Actions CI: typecheck → lint → unit → migration dry-run → RLS → build · SPEC §7
+- [x] **P0-05** GitHub Actions CI: typecheck → lint → unit → migration dry-run → RLS → build · SPEC §7
+  - Built: `.github/workflows/ci.yml` — single job on `ubuntu-latest`, triggered on push/PR to
+    `main`, steps run in the exact SPEC §7 order (typecheck → lint → unit → migration dry-run →
+    RLS → build). The migration dry-run and RLS steps reuse the local Supabase stack's Postgres
+    (`pnpm supabase start` on port 54322) as the "throwaway Postgres" rather than a separate
+    service container — one ephemeral DB instead of two. `pnpm supabase stop` runs with
+    `if: always()` so containers are cleaned up even on failure. `concurrency.cancel-in-progress`
+    cancels superseded runs to conserve free-tier minutes. Playwright E2E-on-preview and the
+    deploy-preview/staging steps from SPEC §7 are intentionally out of scope here (no
+    hosting/preview target exists yet) and left for a later task. Verified by running the exact
+    sequence locally: `pnpm typecheck && pnpm lint && pnpm test` green; `pnpm supabase start` →
+    `pnpm db:migrate` (0 migrations, applies cleanly) → `pnpm test:rls` (1/1 pass) → `pnpm supabase
+    stop` → `pnpm build` all green; workflow YAML parsed with `js-yaml` to confirm it's
+    well-formed and steps are in the declared order. Not yet verified against an actual GitHub
+    Actions run (would require pushing).
 - [ ] **P0-06** App shell, navigation, shared `DataTable`, form primitives · SPEC §5.5
 - [ ] **P0-07** `lib/format` (date, currency, number) + `next-intl` scaffold with `en`/`bn` · SPEC §47
 - [ ] **P0-08** `lib/ids` sequence generator with `SELECT … FOR UPDATE` · SPEC §10.1
