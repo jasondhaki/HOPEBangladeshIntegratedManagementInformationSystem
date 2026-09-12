@@ -54,7 +54,20 @@ Source of truth for build progress. Invoke `/next-task` to work the first unchec
     `pnpm typecheck && pnpm lint` green. Docker Desktop had to be installed for this session (was
     missing) and, after a disk-full crash on `C:` mid-pull, fully reinstalled with the app and its
     WSL data disk both on `D:` (`D:\Docker`, `D:\DockerWSL`) instead of `C:`.
-- [ ] **P0-04** Vitest + Playwright + pgTAP harness wired to pnpm scripts · SPEC §57
+- [x] **P0-04** Vitest + Playwright + pgTAP harness wired to pnpm scripts · SPEC §57
+  - Built: `vitest.config.mts` (node environment, `tests/unit/**/*.test.ts`, `@` alias,
+    `passWithNoTests: true` — no business-rule unit tests exist until Phase 1); `playwright.config.ts`
+    (`tests/e2e`, Desktop Chrome + a 375px-viewport Chromium project, `webServer` runs `pnpm dev`)
+    with a real smoke spec `tests/e2e/home.spec.ts`; `supabase/tests/00_harness_test.sql` pgTAP
+    smoke test run via the already-installed `supabase` CLI (`supabase test db` — no separate
+    pg_prove install needed). `package.json` scripts: `test` → `vitest run`, `test:watch` →
+    `vitest`, `test:e2e` → `playwright test`, `test:rls` → `supabase test db`. One-time local/CI
+    setup: `pnpm exec playwright install chromium` before `test:e2e` works (not a `postinstall`
+    hook, to keep `pnpm install` fast). Verified end-to-end: `pnpm typecheck && pnpm lint` green;
+    `pnpm test` passes with 0 unit tests; `pnpm test:e2e` passes both projects against a live
+    `next dev` server; `pnpm supabase start` → `pnpm test:rls` → `Result: PASS` (1/1) → `pnpm
+    supabase stop`. Real RLS/permission tests and unit tests for business rules land per table
+    starting P1-04/P1-05.
 - [ ] **P0-05** GitHub Actions CI: typecheck → lint → unit → migration dry-run → RLS → build · SPEC §7
 - [ ] **P0-06** App shell, navigation, shared `DataTable`, form primitives · SPEC §5.5
 - [ ] **P0-07** `lib/format` (date, currency, number) + `next-intl` scaffold with `en`/`bn` · SPEC §47
